@@ -1,4 +1,8 @@
-% File record from Stream with MARTA library. Execute and you'll understand.
+% File record from Stream with MARTA library. Execute with a valid file path 
+% and record as .wav / .flac and many more via MATLAB. Connect DSP 
+% functions with >nameOfYourClassInstance<.connectDSP(@x, fPeriod), where 
+% x is the desired DSP function and @x a function handle to it. fPeroid 
+% determines the periodicity MATLAB checks for new input data to process.
 % Author: Hagen Jaeger (c) TGM @ Jade Hochschule applied licence see EOF
 % Version History:
 % Ver. 0.01 initial create (empty) 26.02.2017 HJ
@@ -9,13 +13,17 @@ clear; close all; clc
 iBlockLen = 1024;
 iNumBuffers = 5;
 verbose = true;
+streamDur = 10;
 
 cFileRec = MARTA(iBlockLen, iNumBuffers, verbose);
 
 cFileRec.streamToFile('Rec.wav');
 
-tmpTimer = timer('StartDelay', 10, 'TimerFcn', 'delete(cFileRec);');
+tmpTimer = timer('StartDelay', streamDur, 'TimerFcn', ...
+    'delete(cFileRec); disp(''finished record'');');
 start(tmpTimer);
+
+%cFileRec.connectDSP(@hiPass, 0.01);
 
 %--------------------Licence ---------------------------------------------
 % Copyright (c) <2011-2017> Hagen Jaeger

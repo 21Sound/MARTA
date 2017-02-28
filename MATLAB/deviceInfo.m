@@ -1,8 +1,11 @@
-% Device info example for MARTA library. Execute and you'll understand.
+% Device info example for MARTA library. Get all device names. To get the
+% channel number or default sampling rate of a device, you have to
+% initialize a stream with default parameters (0 or no input) and then get 
+% the pending property of the class (getAccess is true).
 % Author: Hagen Jaeger (c) TGM @ Jade Hochschule applied licence see EOF
 % Version History:
 % Ver. 0.01 initial create (empty) 21.02.2017 HJ
-% Ver. 0.1 seems to work (quite buggy) 22.07.2016 HJ
+% Ver. 0.1 seems to work 22.07.2016 HJ
 
 clear; close all; clc
 

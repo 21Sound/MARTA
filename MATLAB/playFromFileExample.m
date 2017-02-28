@@ -1,4 +1,8 @@
-% File DSP example for MARTA library. Execute and you'll understand.
+% Stream from file example for MARTA library. Execute with a valid file path 
+% and hear to your favourite song via MATLAB. Connect DSP functions with
+% >nameOfYourClassInstance<.connectDSP(@x, fPeriod), where x is the desired
+% DSP function and @x a function handle to it. fPeroid determines the
+% periodicity MATLAB checks for new input data to process.
 % Author: Hagen Jaeger (c) TGM @ Jade Hochschule applied licence see EOF
 % Version History:
 % Ver. 0.01 initial create (empty) 26.02.2017 HJ
@@ -9,13 +13,17 @@ clear; close all; clc
 iBlockLen = 1024;
 iNumBuffers = 5;
 verbose = true;
+streamDur = 10;
 
 cFilePlay = MARTA(iBlockLen, iNumBuffers, verbose);
 
 cFilePlay.streamFromFile('Philip George - Wish You Were Mine.mp3');
 
-tmpTimer = timer('StartDelay', 230, 'TimerFcn', 'delete(cFilePlay);');
+tmpTimer = timer('StartDelay', streamDur, 'TimerFcn', ...
+    'delete(cFilePlay); disp(''finished playback'');');
 start(tmpTimer);
+
+%cFilePlay.connectDSP(@loPass, 0.01);
 
 %--------------------Licence ---------------------------------------------
 % Copyright (c) <2011-2017> Hagen Jaeger

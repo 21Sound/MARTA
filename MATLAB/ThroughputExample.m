@@ -1,5 +1,12 @@
-% Device info example for realtime soundcard throughput. Execute and 
-% you'll understand.
+% Device info example for realtime soundcard throughput. Execute and hear
+% the throughput of your soundcard (record + immediately playback). Connect 
+% DSP functions with >nameOfYourClassInstance<.connectDSP(@x, fPeriod), 
+% where x is the desired DSP function and @x a function handle to it. 
+% fPeroid determines the periodicity MATLAB checks for new input data to 
+% process. If the DSP function doesn't work, the block length may be too
+% short, so MATLAB cant get and change the input data fast enugh. Increase 
+% the block length variable or the number of ringbuffer elements.
+% The bound when this affects is highly hardware and OS dependent.
 % Author: Hagen Jaeger (c) TGM @ Jade Hochschule applied licence see EOF
 % Version History:
 % Ver. 0.01 initial create (empty) 26.02.2017 HJ
@@ -7,16 +14,20 @@
 
 clear; close all; clc
 
-iBlockLen = 64;
+iBlockLen = 512;
 iNumBuffers = 2;
 verbose = true;
+streamDur = 10;
 
 cDuplex = MARTA(iBlockLen, iNumBuffers, verbose);
 
 cDuplex.duplexStream();
 
-tmpTimer = timer('StartDelay', 10, 'TimerFcn', 'delete(cDuplex);');
+tmpTimer = timer('StartDelay', streamDur, 'TimerFcn', ...
+    'delete(cDuplex); disp(''finished throughput'');');
 start(tmpTimer);
+
+%cDuplex.connectDSP(@loPass, 0.01);
 
 %--------------------Licence ---------------------------------------------
 % Copyright (c) <2011-2017> Hagen Jaeger
