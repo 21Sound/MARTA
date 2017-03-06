@@ -8,16 +8,17 @@
 %Ver. 0.1 seems to work 26.02.2017 HJ
 function mIn = loPass(mIn, iFs)
     persistent vMem;
+    persistent b;
+    persistent a;
     
     %iBlockLen = size(mIn,1);
     iNumChans = size(mIn,2);
+    fg = 2000;
     
     if isempty(vMem)
         vMem = zeros(2,iNumChans); 
+        [b, a] = butter(2, fg/iFs*0.5, 'low');
     end
-    
-    fg = 1000;
-    [b, a] = butter(2, fg/iFs*0.5, 'low');
 
     [mIn, vMem] = filter(b, a, mIn, vMem);
 end

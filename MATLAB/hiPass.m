@@ -8,16 +8,17 @@
 %Ver. 0.1 seems to work 26.02.2017 HJ
 function mIn = hiPass(mIn, iFs)
     persistent vMem;
+    persistent b;
+    persistent a;
     
     %iBlockLen = size(mIn,1);
     iNumChans = size(mIn,2);
+    fg = 1000;
     
     if isempty(vMem)
         vMem = zeros(2,iNumChans); 
+        [b, a] = butter(2, fg/iFs*0.5, 'high');
     end
-    
-    fg = 1000;
-    [b, a] = butter(2, fg/iFs*0.5, 'high');
 
     [mIn, vMem] = filter(b, a, mIn, vMem);
 end

@@ -28,6 +28,7 @@ classdef MARTA < handle
         iBufPosOld;
         iBufPosNew;
         iNumBuffers;
+        iNumDSPfcn;
         callbackTimer;
         bVerbose;
         bDSP;
@@ -87,6 +88,7 @@ classdef MARTA < handle
             obj.bDSP = false;
             obj.iBufPosOld = 0;
             obj.iBufPosNew = 0;
+            obj.iNumDSPfcn = 0;
         end
         
         function streamFromFile(obj, sFullPath, iOutDev)
@@ -186,6 +188,56 @@ classdef MARTA < handle
             end
         end
         
+        function outStream(obj, iOutDev, iFs, iNumChans)
+            if nargin < 2
+                iOutDev = calllib('libMARTA', 'getStdOutDev', obj.MARTAptr); 
+            end
+            if nargin < 3, iFs = 0; end
+            if nargin < 4, iNumChans = 0; end
+            
+            iTmp = calllib('libMARTA', 'outStream', obj.MARTAptr, ...
+                iOutDev, iFs, iNumChans);
+            
+            if (iTmp<0)
+                error(calllib('libMARTA', 'getActErrMsg', obj.MARTAptr));
+                obj.delete();
+                return;
+            end
+            
+            obj.iFs = iFs;
+            obj.iNumChans = iNumChans;
+            obj.tmpPtr = libpointer('doublePtr', ...
+                zeros(1,obj.iBlockLen*obj.iNumChans));
+            
+            if(obj.bVerbose)
+                disp(calllib('libMARTA', 'getActErrMsg', obj.MARTAptr));
+            end
+        end
+        
+        function inStream(obj, iInDev, iFs, iNumChans)
+            if nargin < 2, iInDev = -1; end
+            if nargin < 3, iFs = 44100; end
+            if nargin < 4, iNumChans = 1; end
+            
+            iTmp = calllib('libMARTA', 'inStream', obj.MARTAptr, ...
+                iInDev, iFs, iNumChans);
+            
+            if (iTmp<0)
+                error(calllib('libMARTA', 'getActErrMsg', obj.MARTAptr));
+                obj.delete();
+                return;
+            end
+            
+            obj.iFs = iFs;
+            obj.iNumChans = iNumChans;
+            obj.tmpPtr = libpointer('doublePtr', ...
+                zeros(1,obj.iBlockLen*obj.iNumChans));
+            
+            if(obj.bVerbose)
+                disp(calllib('libMARTA', 'getActErrMsg', obj.MARTAptr));
+            end
+        end
+        
         function sDeviceInfo = getDeviceInfo(obj, iDeviceNr)
             if nargin < 2, error('No device number provided.'); end
             sDeviceInfo = calllib('libMARTA', 'getDeviceInfoStr', ...
@@ -200,7 +252,9 @@ classdef MARTA < handle
                 error('First input argument is no function handle.');
             end
             
-            obj.fcnHandleDSP = fcnHandle;
+            obj.iNumDSPfcn = obj.iNumDSPfcn+1;
+            
+            obj.fcnHandleDSP{obj.iNumDSPfcn} = fcnHandle;
             
             if (obj.bDSP)
                 obj.bDSP = false;
@@ -212,6 +266,17 @@ classdef MARTA < handle
             
             start(obj.callbackTimer);
             obj.bDSP = true;
+        end
+        
+        function disconnectDSP(obj)
+            if (obj.bDSP)
+                obj.bDSP = false;
+                stop(obj.callbackTimer);
+            end 
+            
+            obj.iNumDSPfcn = 0;
+            
+            obj.fcnHandleDSP = [];
         end
         
         function seek(obj, fNormPos)
@@ -229,7 +294,9 @@ classdef MARTA < handle
 
                 vTmp = reshape(get(obj.tmpPtr, 'Value'), obj.iNumChans, obj.iBlockLen)';
                 
-                vTmp = obj.fcnHandleDSP(vTmp, obj.iFs);
+                for iFcnHandleCnt = 1:obj.iNumDSPfcn
+                    vTmp = obj.fcnHandleDSP{iFcnHandleCnt}(vTmp, obj.iFs);
+                end
                 
                 obj.vData = reshape(vTmp', obj.iBlockLen*obj.iNumChans, 1);
 

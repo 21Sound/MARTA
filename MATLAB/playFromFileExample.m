@@ -13,7 +13,7 @@ clear; close all; clc
 iBlockLen = 1024;
 iNumBuffers = 5;
 verbose = true;
-streamDur = 10;
+streamDur = 245;
 
 cFilePlay = MARTA(iBlockLen, iNumBuffers, verbose);
 
@@ -24,6 +24,7 @@ tmpTimer = timer('StartDelay', streamDur, 'TimerFcn', ...
 start(tmpTimer);
 
 %cFilePlay.connectDSP(@loPass, 0.01);
+%cFilePlay.disonnectDSP(@loPass, 0.01);
 
 %--------------------Licence ---------------------------------------------
 % Copyright (c) <2011-2017> Hagen Jaeger

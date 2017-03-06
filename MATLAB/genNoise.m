@@ -6,20 +6,10 @@
 %Version History:
 %Ver. 0.01 initial create (empty) 26.02.2017 HJ
 %Ver. 0.1 seems to work 26.02.2017 HJ
-function mIn = bandPass(mIn, iFs)
-    persistent vMem;
-    
-    %iBlockLen = size(mIn,1);
+function mIn = loPass(mIn, iFs)
+    iBlockLen = size(mIn,1);
     iNumChans = size(mIn,2);
-    
-    if isempty(vMem)
-        vMem = zeros(4,iNumChans); 
-    end
-    
-    fg = [500, 5000];
-    [b, a] = butter(2, fg/iFs*0.5, 'bandpass');
-
-    [mIn, vMem] = filter(b, a, mIn, vMem);
+    mIn = 0.1*randn(iBlockLen, iNumChans);
 end
 
 %--------------------Licence ---------------------------------------------
