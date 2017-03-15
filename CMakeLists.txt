@@ -7,9 +7,9 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_CXX_STANDARD 11)
 
 #set the relative paths for external libraries and headers
-set(INCLUDE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/dependencies/headers" CACHE FILEPATH "description")
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+    include_directories("${CMAKE_CURRENT_SOURCE_DIR}/dependencies/headers" CACHE FILEPATH "description")
     if("${CMAKE_SIZEOF_VOID_P}" EQUAL "8")
         message(STATUS "Target is 64 bits")
         set(LIB_PATH "${CMAKE_CURRENT_SOURCE_DIR}/dependencies/win64" CACHE FILEPATH "description")
@@ -24,15 +24,19 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     #find the included libraries to link against them explicitely
     find_library(CPP_LIB libstdc++-6)
     find_library(WINPTHREAD_LIB libwinpthread-1)
-    find_library(SNDFILE_LIB sndfile-1 HINTS ${LIB_PATH})
-    find_library(MPG_LIB mpg123-0 HINTS ${LIB_PATH})
+    find_library(SNDFILE_LIB sndfile sndfile-1 HINTS ${LIB_PATH})
+    find_library(MPG_LIB mpg123 mpg123-0 HINTS ${LIB_PATH})
     find_library(PORTAUDIO_LIB portaudio_static portaudio HINTS ${LIB_PATH})
 else(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     #find libraries on other systems
     find_library(SNDFILE_LIB sndfile sndfile-1)
     find_library(MPG_LIB mpg123 mpg123-0)
-    find_library(PORTAUDIO_LIB portaudio portaudio-0)
+    find_library(PORTAUDIO_LIB portaudio portaudio0)
 endif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+
+message(STATUS "Found portaudio library ${PORTAUDIO_LIB}")
+message(STATUS "Found mpg123 library ${MPG_LIB}")
+message(STATUS "Found sndfile library ${SNDFILE_LIB}")
 
 #include external headers
 include_directories(${INCLUDE_PATH})
