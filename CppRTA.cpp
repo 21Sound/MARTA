@@ -39,7 +39,7 @@ CppRTA::CppRTA(uint16_t iBlockLen, uint32_t iNumBuffers)
     iNumPortAudioDevices = Pa_GetDeviceCount();
 
     if (iNumPortAudioDevices < 1)
-        throw std::invalid_argument("No port audio devices covered.");
+        throw std::runtime_error("No port audio devices covered.");
 
     iStdInDev = Pa_GetDefaultInputDevice();
 
@@ -49,12 +49,12 @@ CppRTA::CppRTA(uint16_t iBlockLen, uint32_t iNumBuffers)
     sDeviceInfoTmp = Pa_GetDeviceInfo(iStdDuplexDev);
     while (!((sDeviceInfoTmp->maxInputChannels > 1)
            && (sDeviceInfoTmp->maxInputChannels == sDeviceInfoTmp->maxOutputChannels))
-           && (iStdDuplexDev < iNumPortAudioDevices))
+           && (iStdDuplexDev < (iNumPortAudioDevices-1)))
     {
         iStdDuplexDev++;
         sDeviceInfoTmp = Pa_GetDeviceInfo(iStdDuplexDev);
     }
-    if (iStdDuplexDev >= iNumPortAudioDevices)
+    if (iStdDuplexDev >= (iNumPortAudioDevices-1))
         iStdDuplexDev = 0xFFFF;
 }
 
