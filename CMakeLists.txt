@@ -57,8 +57,8 @@ else(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 endif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 
 #define test executable which uses MARTA lib c interface
-add_executable(MARTAtst MARTAtst.c)
-target_link_libraries(MARTAtst MARTA)
+#add_executable(MARTAtst MARTAtst.c)
+#target_link_libraries(MARTAtst MARTA)
 
 #find the relevant headers to copy them to the binary directory
 find_file(MARTA_HEADER MARTA.h ${CMAKE_CURRENT_SOURCE_DIR})

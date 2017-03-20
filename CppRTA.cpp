@@ -50,12 +50,12 @@ CppRTA::CppRTA(uint16_t iBlockLen, uint32_t iNumBuffers, APFLOAT audioProcessing
     sDeviceInfoTmp = Pa_GetDeviceInfo(iStdDuplexDev);
     while (!((sDeviceInfoTmp->maxInputChannels > 1)
            && (sDeviceInfoTmp->maxInputChannels == sDeviceInfoTmp->maxOutputChannels))
-           && (iStdDuplexDev < iNumPortAudioDevices))
+           && (iStdDuplexDev < (iNumPortAudioDevices-1)))
     {
         iStdDuplexDev++;
         sDeviceInfoTmp = Pa_GetDeviceInfo(iStdDuplexDev);
     }
-    if (iStdDuplexDev >= iNumPortAudioDevices)
+    if (iStdDuplexDev >= (iNumPortAudioDevices-1))
         iStdDuplexDev = 0xFFFF;
 }
 
