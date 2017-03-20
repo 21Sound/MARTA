@@ -39,18 +39,15 @@ int main()
     void* myPtrToMARTA;
     int iCnt, iWatchDog;
     int iDeviceNr = -1; //-1 means std device
+    const char* sFilePath = "D:/My Music/Cari Lekebusch +TecHouse/Julian Jeweil – Shaka (Original Mix) [ClapCrate.com].mp3";
 
-    if((myPtrToMARTA =initMARTA(BLOCKLEN, NUM_BUFFERS))  == NULL)
+    if((myPtrToMARTA = initMARTA(BLOCKLEN, NUM_BUFFERS))  == NULL)
         return -1;
-
-    //if (duplex(myPtrToMARTA, -1, 0, 0) < 0) return -2;
-
-    //if (streamToFile(myPtrToMARTA, "C:/Users/ha1044/Desktop/tmpWrite.wav", -1, 0, 0, 0) < 0) return -2;
 
     for (iCnt = 0; iCnt<getNumDevices(myPtrToMARTA); iCnt++)
         printf("Device %i: %s \n", iCnt, getDeviceInfoStr(myPtrToMARTA, iCnt));
 
-    if (streamFromFile(myPtrToMARTA, "/home/pi/Workspace/Philip George Wish You Were Mine Original Mix [zippy.audio].mp3", iDeviceNr) < 0) return -2;
+    if (streamFromFile(myPtrToMARTA, sFilePath, iDeviceNr) < 0) return -2;
 
     for (iWatchDog = 0; iWatchDog < 1000; iWatchDog++) //1000*0.01 sec play time
     {

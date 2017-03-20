@@ -6,6 +6,17 @@
 #include "mpg123.h"
 #include "sndfile.h"
 
+// audioProcessing (float)
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+    typedef void(*APFLOAT)(double *buffer, int numChannels, int numFrames);
+
+#ifdef __cplusplus
+}
+#endif
+
 #ifdef __cplusplus
 
 #include <string>
@@ -16,7 +27,7 @@ class CppRTA
 
 public:
 
-    CppRTA(uint16_t iBlockLen = 512, uint32_t iNumBuffers = 10);
+    CppRTA(uint16_t iBlockLen = 512, uint32_t iNumBuffers = 10, APFLOAT audioProcessing = NULL);
 
     void inStream(int16_t iInDevNr, uint32_t iFs, uint32_t iNumChans);
 
@@ -111,6 +122,7 @@ protected:
 
 private:
 
+    APFLOAT audioProcessing;
     PaStream *paStream;
     const PaDeviceInfo *sDeviceInfo;
     SNDFILE *sndFileRW;

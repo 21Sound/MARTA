@@ -46,10 +46,14 @@ set(LANGUAGE CXX)
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     #define MARTA library
     add_library(MARTA SHARED CppRTA.cpp MARTA.cpp)
+    add_executable(CppRTAtst CppRTAtst.cpp CppRTA.cpp)
     target_link_libraries(MARTA ${PORTAUDIO_LIB} -lwinmm -lole32 -luuid -lsetupapi ${MPG_LIB} ${SNDFILE_LIB})
+    target_link_libraries(CppRTAtst ${PORTAUDIO_LIB} -lwinmm -lole32 -luuid -lsetupapi ${MPG_LIB} ${SNDFILE_LIB})
 else(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     add_library(MARTA SHARED CppRTA.cpp MARTA.cpp)
+    add_executable(CppRTAtst CppRTAtst.cpp CppRTA.cpp)
     target_link_libraries(MARTA ${PORTAUDIO_LIB} ${MPG_LIB} ${SNDFILE_LIB})
+    target_link_libraries(CppRTAtst ${PORTAUDIO_LIB} ${MPG_LIB} ${SNDFILE_LIB})
 endif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 
 #define test executable which uses MARTA lib c interface

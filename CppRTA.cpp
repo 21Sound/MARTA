@@ -2,11 +2,12 @@
 #include <cmath>
 #include "CppRTA.h"
 
-CppRTA::CppRTA(uint16_t iBlockLen, uint32_t iNumBuffers)
+CppRTA::CppRTA(uint16_t iBlockLen, uint32_t iNumBuffers, APFLOAT audioProcessing)
 {
     const PaDeviceInfo *sDeviceInfoTmp;
     PaError paErr = paNoError;
 
+    this->audioProcessing = audioProcessing;
     this->paStream = NULL;
     this->sndFileRW = NULL;
     this->mp3Read = NULL;
@@ -39,7 +40,7 @@ CppRTA::CppRTA(uint16_t iBlockLen, uint32_t iNumBuffers)
     iNumPortAudioDevices = Pa_GetDeviceCount();
 
     if (iNumPortAudioDevices < 1)
-        throw std::runtime_error("No port audio devices covered.");
+        throw std::invalid_argument("No port audio devices covered.");
 
     iStdInDev = Pa_GetDefaultInputDevice();
 
@@ -49,12 +50,12 @@ CppRTA::CppRTA(uint16_t iBlockLen, uint32_t iNumBuffers)
     sDeviceInfoTmp = Pa_GetDeviceInfo(iStdDuplexDev);
     while (!((sDeviceInfoTmp->maxInputChannels > 1)
            && (sDeviceInfoTmp->maxInputChannels == sDeviceInfoTmp->maxOutputChannels))
-           && (iStdDuplexDev < (iNumPortAudioDevices-1)))
+           && (iStdDuplexDev < iNumPortAudioDevices))
     {
         iStdDuplexDev++;
         sDeviceInfoTmp = Pa_GetDeviceInfo(iStdDuplexDev);
     }
-    if (iStdDuplexDev >= (iNumPortAudioDevices-1))
+    if (iStdDuplexDev >= iNumPortAudioDevices)
         iStdDuplexDev = 0xFFFF;
 }
 
@@ -129,10 +130,10 @@ void CppRTA::outStream(int16_t iOutDevNr, uint32_t iFs, uint32_t iNumChans)
 
     sDeviceInfo = Pa_GetDeviceInfo(iOutDevNr);
 
-    if (iFs < 1);
+    if (iFs < 1)
         iFs = sDeviceInfo->defaultSampleRate;
 
-    if (iNumChans < 1);
+    if (iNumChans < 1)
         iNumChans = sDeviceInfo->maxInputChannels;
 
     iBufLen = iBlockLen*iNumChans;
@@ -182,10 +183,10 @@ void CppRTA::duplex(int16_t iDuplexDeviceNr, uint32_t iFs, uint32_t iNumChans)
 
     sDeviceInfo = Pa_GetDeviceInfo(iDuplexDeviceNr);
 
-    if (iFs < 1);
+    if (iFs < 1)
         iFs = sDeviceInfo->defaultSampleRate;
 
-    if (iNumChans < 1);
+    if (iNumChans < 1)
         iNumChans = sDeviceInfo->maxInputChannels;
 
     iBufLen = iBlockLen*iNumChans;
@@ -243,10 +244,10 @@ void CppRTA::streamToFile(std::string sFileName, int16_t iInDeviceNr,
 
     sDeviceInfo = Pa_GetDeviceInfo(iInDeviceNr);
 
-    if (iFs < 1);
+    if (iFs < 1)
         iFs = sDeviceInfo->defaultSampleRate;
 
-    if (iNumChans < 1);
+    if (iNumChans < 1)
         iNumChans = sDeviceInfo->maxInputChannels;
 
     if (iFormat<=0)
@@ -473,6 +474,9 @@ int CppRTA::inStreamCallback(const void *vInputBuffer, void *vOutputBuffer,
     for (uint32_t iSampCnt = 0; iSampCnt<obj->iBufLen; iSampCnt++)
         obj->mInOutBuf[obj->iBufCnt][iSampCnt] = (double) vRecData[iSampCnt]*obj->fGain;
 
+    if (obj->audioProcessing != NULL)
+        obj->audioProcessing((obj->mInOutBuf[obj->iBufCnt]).data(), obj->iNumChans, obj->iBlockLen);
+
     if (obj->bLimitEnabled)
         obj->fastLimiter((obj->mInOutBuf[obj->iBufCnt]).data());
 
@@ -507,6 +511,9 @@ int CppRTA::outStreamCallback(const void *vInputBuffer, void *vOutputBuffer,
 
     for (uint32_t iSampCnt = 0; iSampCnt<obj->iBufLen; iSampCnt++)
         obj->mInOutBuf[obj->iBufCnt][iSampCnt] *= obj->fGain;
+
+    if (obj->audioProcessing != NULL)
+        obj->audioProcessing((obj->mInOutBuf[obj->iBufCnt]).data(), obj->iNumChans, obj->iBlockLen);
 
     if (obj->bLimitEnabled)
         obj->fastLimiter((obj->mInOutBuf[obj->iBufCnt]).data());
@@ -543,6 +550,9 @@ int CppRTA::duplexCallback(const void *vInputBuffer, void *vOutputBuffer,
     CppRTA* obj = (CppRTA*) userData;
     float *vPlayData = (float*) vOutputBuffer;
     float *vRecData = (float*) vInputBuffer;
+
+    if (obj->audioProcessing != NULL)
+        obj->audioProcessing((obj->mInOutBuf[obj->iBufCnt]).data(), obj->iNumChans, obj->iBlockLen);
 
     if (obj->bLimitEnabled)
         obj->fastLimiter((obj->mInOutBuf[obj->iBufCnt]).data());
@@ -582,6 +592,9 @@ int CppRTA::streamToFileCallback(const void *vInputBuffer, void *vOutputBuffer,
     CppRTA *obj = (CppRTA*) userData;
     float *vRecData = (float*) vInputBuffer;
 
+    if (obj->audioProcessing != NULL)
+        obj->audioProcessing((obj->mInOutBuf[obj->iBufCnt]).data(), obj->iNumChans, obj->iBlockLen);
+
     if (obj->bLimitEnabled)
         obj->fastLimiter((obj->mInOutBuf[obj->iBufCnt]).data());
 
@@ -620,11 +633,14 @@ int CppRTA::streamFromFileCallback(const void *vInputBuffer, void *vOutputBuffer
     float *vPlayData = (float*) vOutputBuffer;
     size_t iNumSampsRead;
 
+    if (obj->audioProcessing != NULL)
+        obj->audioProcessing((obj->mInOutBuf[obj->iBufCnt]).data(), obj->iNumChans, obj->iBlockLen);
+
     if (obj->bLimitEnabled)
         obj->fastLimiter((obj->mInOutBuf[obj->iBufCnt]).data());
 
     for (uint32_t iSampCnt = 0; iSampCnt<obj->iBufLen; iSampCnt++)
-        vPlayData[iSampCnt] = (float) obj->mInOutBuf[obj->iBufCnt][iSampCnt];
+        vPlayData[iSampCnt] = (float)obj->mInOutBuf[obj->iBufCnt][iSampCnt];
 
     if (obj->sndFileRW != NULL)
     {
