@@ -39,7 +39,7 @@ int main()
     void* myPtrToMARTA;
     int iCnt, iWatchDog;
     int iDeviceNr = -1; //-1 means std device
-    const char* sFilePath = "D:/My Music/Cari Lekebusch +TecHouse/Julian Jeweil – Shaka (Original Mix) [ClapCrate.com].mp3";
+    const char* sFilePath = "D:/Qt/QtProjects/VARy/build-VARy-Desktop_Qt_5_7_0_MinGW_32bit-Release/testFiles/HotelCaliforniaSnippet.wav";
 
     if((myPtrToMARTA = initMARTA(BLOCKLEN, NUM_BUFFERS))  == NULL)
         return -1;

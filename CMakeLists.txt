@@ -20,13 +20,11 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
         find_library(DW2_LIB gcc_s_dw2-1)
         find_library(SJLJ_LIB gcc_s_sjlj-1 HINTS ${LIB_PATH})
     endif("${CMAKE_SIZEOF_VOID_P}" EQUAL "8")
-
-    #find the included libraries to link against them explicitely
     find_library(CPP_LIB libstdc++-6)
     find_library(WINPTHREAD_LIB libwinpthread-1)
     find_library(SNDFILE_LIB sndfile sndfile-1 HINTS ${LIB_PATH})
     find_library(MPG_LIB mpg123 mpg123-0 HINTS ${LIB_PATH})
-    find_library(PORTAUDIO_LIB portaudio_static portaudio HINTS ${LIB_PATH})
+    find_library(PORTAUDIO_LIB portaudio portaudio0 HINTS ${LIB_PATH})
 else(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     #find libraries on other systems
     find_library(SNDFILE_LIB sndfile sndfile-1)
@@ -34,29 +32,47 @@ else(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     find_library(PORTAUDIO_LIB portaudio portaudio0)
 endif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 
-message(STATUS "Found portaudio library ${PORTAUDIO_LIB}")
-message(STATUS "Found mpg123 library ${MPG_LIB}")
-message(STATUS "Found sndfile library ${SNDFILE_LIB}")
+message(STATUS "Found portaudio library: ${PORTAUDIO_LIB}")
+message(STATUS "Found mpg123 library: ${MPG_LIB}")
+message(STATUS "Found sndfile library: ${SNDFILE_LIB}")
 
 #include external headers
 include_directories(${INCLUDE_PATH})
 
 set(LANGUAGE CXX)
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    #define MARTA library
-    add_library(MARTA SHARED CppRTA.cpp MARTA.cpp)
-    add_executable(CppRTAtst CppRTAtst.cpp CppRTA.cpp)
-    target_link_libraries(MARTA ${PORTAUDIO_LIB} -lwinmm -lole32 -luuid -lsetupapi ${MPG_LIB} ${SNDFILE_LIB})
-    target_link_libraries(CppRTAtst ${PORTAUDIO_LIB} -lwinmm -lole32 -luuid -lsetupapi ${MPG_LIB} ${SNDFILE_LIB})
-else(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    add_library(MARTA SHARED CppRTA.cpp MARTA.cpp)
-    add_executable(CppRTAtst CppRTAtst.cpp CppRTA.cpp)
-    target_link_libraries(MARTA ${PORTAUDIO_LIB} ${MPG_LIB} ${SNDFILE_LIB})
-    target_link_libraries(CppRTAtst ${PORTAUDIO_LIB} ${MPG_LIB} ${SNDFILE_LIB})
-endif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+##### Qt5RTA Project tester generation (disabled by default)
+#if(POLICY CMP0020)
+#cmake_policy(SET CMP0020 NEW)
+#endif()
+#set(CMAKE_AUTOMOC ON)
+#set(CMAKE_INCLUDE_CURRENT_DIR ON)
+#find_package(Qt5Core)
+#find_package(Qt5Gui)
+#find_package(Qt5Widgets)
+#find_package(Qt5PrintSupport)
+#include_directories(${Qt5Core_INCLUDE_DIRS} ${Qt5Gui_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${Qt5PrintSupport_INCLUDE_PATH})
+#add_executable(QtRTAtst QtRTAtst.cpp mainWindow.cpp CppRTA.cpp)
+#target_link_libraries(QtRTAtst ${PORTAUDIO_LIB} ${MPG_LIB} ${SNDFILE_LIB}
+#	${Qt5Core_LIBRARIES} ${Qt5Gui_LIBRARIES} ${Qt5Widgets_LIBRARIES} ${Qt5PrintSupport_LIBRARIES})
+#find_library(QT5CORE_LIB Qt5Core.dll)
+#find_library(QT5GUI_LIB Qt5Gui.dll)
+#find_library(QT5WIDGETS_LIB Qt5Widgets.dll)
+#find_library(QT5PRINT_LIB Qt5PrintSupport.dll)
+#file(COPY ${QT5CORE_LIB} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+#file(COPY ${QT5GUI_LIB} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+#file(COPY ${QT5WIDGETS_LIB} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+#file(COPY ${QT5PRINT_LIB} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
-#define test executable which uses MARTA lib c interface
+##### MARTA library generation (enabled by default) #####
+add_library(MARTA SHARED CppRTA.cpp MARTA.cpp)
+target_link_libraries(MARTA ${PORTAUDIO_LIB} ${MPG_LIB} ${SNDFILE_LIB})
+
+##### C++-Project tester generation (enabled by default) #####
+add_executable(CppRTAtst CppRTAtst.cpp CppRTA.cpp)
+target_link_libraries(CppRTAtst ${PORTAUDIO_LIB} ${MPG_LIB} ${SNDFILE_LIB})
+
+##### C-Project tester generation (disabled by default) #####
 #add_executable(MARTAtst MARTAtst.c)
 #target_link_libraries(MARTAtst MARTA)
 
@@ -65,6 +81,7 @@ find_file(MARTA_HEADER MARTA.h ${CMAKE_CURRENT_SOURCE_DIR})
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     #copy right libraries (32 vs 64 bin exception handling) and headers to the binary directory
+    
     if("${CMAKE_SIZEOF_VOID_P}" EQUAL "8")
             file(COPY ${SEH_LIB} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
     else("${CMAKE_SIZEOF_VOID_P}" EQUAL "8")

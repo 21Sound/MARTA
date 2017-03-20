@@ -30,7 +30,7 @@ int main()
 {
     int count, watchDog;
     int deviceNr = -1;
-    const char* sFilePath = "D:/My Music/Cari Lekebusch +TecHouse/Julian Jeweil – Shaka (Original Mix) [ClapCrate.com].mp3";
+    const char* sFilePath = "D:/Qt/QtProjects/VARy/build-VARy-Desktop_Qt_5_7_0_MinGW_32bit-Release/testFiles/HotelCaliforniaSnippet.wav";
 
     CppRTA *cppRTA = new CppRTA(BLOCKLEN, NUM_BUFFERS, lowPass);
 
