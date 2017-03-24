@@ -41,7 +41,7 @@ include_directories(${INCLUDE_PATH})
 
 set(LANGUAGE CXX)
 
-##### Qt5RTA Project tester generation (disabled by default)
+##### Qt5RTA Project tester generation (enabled by default)
 if(POLICY CMP0020)
 cmake_policy(SET CMP0020 NEW)
 endif()
@@ -64,7 +64,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
    file(COPY ${QT5WIDGETS_LIB} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 endif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 
-##### MARTA library generation (enabled by default) #####
+##### MARTA library generation (disabled by default) #####
 add_library(MARTA SHARED CppRTA.cpp MARTA.cpp)
 target_link_libraries(MARTA ${PORTAUDIO_LIB} ${MPG_LIB} ${SNDFILE_LIB})
 
