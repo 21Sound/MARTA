@@ -37,7 +37,7 @@ int main()
 {
     int count, watchDog;
     int deviceNr = -1;
-    const char* sFilePath = "D:/Qt/QtProjects/VARy/build-VARy-Desktop_Qt_5_7_0_MinGW_32bit-Release/testFiles/HotelCaliforniaSnippet.wav";
+    const char* sFilePath = "D:/Qt/QtProjects/Philip George - Wish You Were Mine (Original Mix).mp3";
 
     CppRTA *cppRTA = new CppRTA(BLOCKLEN, NUM_BUFFERS, lowPass);
 

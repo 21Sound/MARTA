@@ -17,7 +17,7 @@ streamDur = 245;
 
 cFilePlay = MARTA(iBlockLen, iNumBuffers, verbose);
 
-cFilePlay.streamFromFile('Philip George - Wish You Were Mine.mp3');
+cFilePlay.streamFromFile('Philip George - Wish You Were Mine (Original Mix).mp3');
 
 tmpTimer = timer('StartDelay', streamDur, 'TimerFcn', ...
     'delete(cFilePlay); disp(''finished playback'');');

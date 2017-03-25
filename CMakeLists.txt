@@ -6,6 +6,11 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 #Using c++11 standard
 set(CMAKE_CXX_STANDARD 11)
 
+#Which example should I build? Choose here:
+option(Qt5RTA "Build CppRTA with Qt5 GUI example" OFF)
+option(CppRTA "Build CppRTA C++ example" ON)
+option(MARTA "Build MARTA C-Wrapper for C++ class example" OFF)
+
 #set the relative paths for external libraries and headers
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
@@ -41,40 +46,49 @@ include_directories(${INCLUDE_PATH})
 
 set(LANGUAGE CXX)
 
-##### Qt5RTA Project tester generation (enabled by default)
-if(POLICY CMP0020)
-cmake_policy(SET CMP0020 NEW)
-endif()
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-find_package(Qt5Core)
-find_package(Qt5Gui)
-find_package(Qt5Widgets)
-include_directories(${Qt5Core_INCLUDE_DIRS} ${Qt5Gui_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS})
-add_executable(QtRTAtst QtRTAtst.cpp mainWindow.cpp CppRTA.cpp)
-target_link_libraries(QtRTAtst ${PORTAUDIO_LIB} ${MPG_LIB} ${SNDFILE_LIB}
-        ${Qt5Core_LIBRARIES} ${Qt5Gui_LIBRARIES} ${Qt5Widgets_LIBRARIES})
-find_library(QT5CORE_LIB Qt5Core.dll)
-find_library(QT5GUI_LIB Qt5Gui.dll)
-find_library(QT5WIDGETS_LIB Qt5Widgets.dll)
-find_library(QT5PRINT_LIB Qt5PrintSupport.dll)
-if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-   file(COPY ${QT5CORE_LIB} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-   file(COPY ${QT5GUI_LIB} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-   file(COPY ${QT5WIDGETS_LIB} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-endif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-
-##### MARTA library generation (disabled by default) #####
+##### MARTA library generation (enabled by default) #####
 add_library(MARTA SHARED CppRTA.cpp MARTA.cpp)
 target_link_libraries(MARTA ${PORTAUDIO_LIB} ${MPG_LIB} ${SNDFILE_LIB})
 
+##### Qt5RTA Project tester generation (disabled by default)
+if(Qt5RTA MATCHES ON)
+    message(STATUS "Building Qt5RTA C++ with GUI example")
+    if(POLICY CMP0020)
+    cmake_policy(SET CMP0020 NEW)
+    endif()
+    set(CMAKE_AUTOMOC ON)
+    set(CMAKE_INCLUDE_CURRENT_DIR ON)
+    find_package(Qt5Core)
+    find_package(Qt5Gui)
+    find_package(Qt5Widgets)
+    include_directories(${Qt5Core_INCLUDE_DIRS} ${Qt5Gui_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS})
+    add_executable(QtRTAtst QtRTAtst.cpp mainWindow.cpp CppRTA.cpp)
+    target_link_libraries(QtRTAtst ${PORTAUDIO_LIB} ${MPG_LIB} ${SNDFILE_LIB}
+            ${Qt5Core_LIBRARIES} ${Qt5Gui_LIBRARIES} ${Qt5Widgets_LIBRARIES})
+    find_library(QT5CORE_LIB Qt5Core.dll)
+    find_library(QT5GUI_LIB Qt5Gui.dll)
+    find_library(QT5WIDGETS_LIB Qt5Widgets.dll)
+    find_library(QT5PRINT_LIB Qt5PrintSupport.dll)
+    if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+       file(COPY ${QT5CORE_LIB} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+       file(COPY ${QT5GUI_LIB} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+       file(COPY ${QT5WIDGETS_LIB} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+    endif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+endif(Qt5RTA MATCHES ON)
+
 ##### C++-Project tester generation (enabled by default) #####
-#add_executable(CppRTAtst CppRTAtst.cpp CppRTA.cpp)
-#target_link_libraries(CppRTAtst ${PORTAUDIO_LIB} ${MPG_LIB} ${SNDFILE_LIB})
+if(CppRTA MATCHES ON)
+    message(STATUS "Building CppRTA C++ example")
+    add_executable(CppRTAtst CppRTAtst.cpp CppRTA.cpp)
+    target_link_libraries(CppRTAtst ${PORTAUDIO_LIB} ${MPG_LIB} ${SNDFILE_LIB})
+endif(CppRTA MATCHES ON)
 
 ##### C-Project tester generation (disabled by default) #####
-#add_executable(MARTAtst MARTAtst.c)
-#target_link_libraries(MARTAtst MARTA)
+if(MARTA MATCHES ON)
+    message(STATUS "Building MARTA C-Wrapper for C++ example")
+    add_executable(MARTAtst MARTAtst.c)
+    target_link_libraries(MARTAtst MARTA)
+endif(MARTA MATCHES ON)
 
 #find the relevant headers to copy them to the binary directory
 find_file(MARTA_HEADER MARTA.h ${CMAKE_CURRENT_SOURCE_DIR})
