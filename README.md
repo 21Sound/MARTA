@@ -8,7 +8,7 @@ reading / writing libraries and real time audio streaming. It uses libmpg123 and
 audio data from HDD on-the-fly (minimum RAM usage) and portaudio to stream data from / into soundcards. 
 
 MARTAis a MATLAB class which uses the C wrapper for the C++ API, so the functionalities can be used in MATLAB code to 
-develop light weight DSP code in an easy way (writing DSP code in MATLAB tends to be much faster than in C / C++). MATLAB calls the C-library functions in MARTA via calllib. You can call MATLAb also directly in plain C-Code.
+develop light weight DSP code in an easy way (writing DSP code in MATLAB tends to be much faster than in C / C++). MATLAB calls the C-library functions in MARTA via calllib. You can call the MARTA lib also directly in plain C-Code.
 
 Installation
 ------------
